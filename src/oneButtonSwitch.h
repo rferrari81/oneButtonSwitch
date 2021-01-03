@@ -43,6 +43,14 @@ class oneButtonSwitch {
 
     /*
     * Constructor
+    * @param pinButton, pin number where momentary push button switch connect
+    * @param pinHoldMOSFET, pin number hold power MOSFET ON - pinMode(pinHoldMOSFET, OUTPUT); digitalWrite(pinHoldMOSFET, HIGH); - when is LOW arduino power OFF
+    * @param milliseconds, sets milliseconds from pressing power switch to switching off   
+    */
+	oneButtonSwitch(int pinButton, double pinHoldMOSFET, long milliseconds);
+
+    /*
+    * Constructor
     * Put oneButtonSwitchLOOP(); in loop void to activate off function with power switch button
     */
     void oneButtonSwitchLOOP();
@@ -53,9 +61,12 @@ class oneButtonSwitch {
     oneButtonSwitch();    
        
   private:
-    int    _pinButton;        // pinButton moentarz push button switch
-    int    _pinHoldMOSFET;      // pinHoldMOSFET hold MOSFET ON
-    bool   MOSFET_hold = false;
+    int     _pinButton;        // pinButton moentarz push button switch
+    int     _pinHoldMOSFET;      // pinHoldMOSFET hold MOSFET ON
+    bool    MOSFET_hold = false;
+	long    _milliseconds = 0;
+	unsigned long pressedTime  = 0;
+    unsigned long releasedTime = 0;
     boolean powerbutton = LOW;          
     boolean last_powerbutton = LOW;
     boolean debounce(boolean last, int pin);

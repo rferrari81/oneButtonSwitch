@@ -33,6 +33,16 @@ oneButtonSwitch::oneButtonSwitch(int pinButton, double pinHoldMOSFET)
     digitalWrite(_pinHoldMOSFET, HIGH);
 }
 
+oneButtonSwitch::oneButtonSwitch(int pinButton, double pinHoldMOSFET, long milliseconds)
+{
+	_pinButton = pinButton;
+    _pinHoldMOSFET = pinHoldMOSFET;
+    pinMode(_pinButton, INPUT_PULLUP);
+    pinMode(_pinHoldMOSFET, OUTPUT);
+    digitalWrite(_pinHoldMOSFET, HIGH);
+	_milliseconds = milliseconds;
+}
+	
 oneButtonSwitch::oneButtonSwitch()
 {
 
@@ -53,16 +63,40 @@ boolean oneButtonSwitch::debounce(boolean last, int pin)
 void oneButtonSwitch::oneButtonSwitchLOOP()
 {
  powerbutton = debounce(last_powerbutton, _pinButton);
-
- if(MOSFET_hold == false){
-  if (last_powerbutton == LOW && powerbutton == HIGH){
-    MOSFET_hold = true;
-  }else{}
- last_powerbutton = powerbutton;
-  }else{
+	
+ if(_milliseconds < 1){
+  if(MOSFET_hold == false){
    if (last_powerbutton == LOW && powerbutton == HIGH){
-     digitalWrite(_pinHoldMOSFET, LOW);
+     MOSFET_hold = true;
    }else{}
- last_powerbutton = powerbutton;
+  last_powerbutton = powerbutton;
+   }else{
+    if (last_powerbutton == LOW && powerbutton == HIGH){
+      digitalWrite(_pinHoldMOSFET, LOW);
+    }else{}
+  last_powerbutton = powerbutton;
+  }
+ }else{
+  if(MOSFET_hold == false){
+   if (last_powerbutton == LOW && powerbutton == HIGH){
+    MOSFET_hold = true;
+   }else{}
+    last_powerbutton = powerbutton;
+   }else{
+   if (last_powerbutton == HIGH && powerbutton == LOW){
+     pressedTime = millis();
+   }else if(last_powerbutton == LOW && powerbutton == HIGH){
+    releasedTime = millis();
+    long pressDuration = releasedTime - pressedTime;	
+     if( pressDuration < _milliseconds ){
+       //Serial.println("A short press is detected");
+      }
+     if( pressDuration > _milliseconds ){
+       //Serial.println("A long press is detected");
+	   digitalWrite(_pinHoldMOSFET, LOW);
+      }
+   }
+  last_powerbutton = powerbutton;
+  }
  }
 }
